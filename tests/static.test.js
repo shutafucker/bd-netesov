@@ -44,11 +44,15 @@ test('CSS includes responsive Apple-inspired accessibility rules', () => {
   assert.match(css, /\.status-region\s*\{[^}]*position:\s*absolute[^}]*width:\s*1px[^}]*clip:/s);
 });
 
-test('public Supabase configuration is documented and safe by default', () => {
+test('public Supabase configuration uses the connected project', () => {
   const config = fs.readFileSync(path.join(root, 'config.js'), 'utf8');
 
-  assert.match(config, /const\s+SUPABASE_URL\s*=\s*['"]YOUR_SUPABASE_URL['"]/);
-  assert.match(config, /const\s+SUPABASE_ANON_KEY\s*=\s*['"]YOUR_SUPABASE_ANON_KEY['"]/);
+  assert.match(
+    config,
+    /const\s+SUPABASE_URL\s*=\s*['"]https:\/\/gchgtvcklerhlfmwmica\.supabase\.co['"]/,
+  );
+  assert.match(config, /const\s+SUPABASE_ANON_KEY\s*=\s*['"]sb_publishable_[A-Za-z0-9_-]+['"]/);
+  assert.doesNotMatch(config, /YOUR_SUPABASE_(URL|ANON_KEY)/);
   assert.match(config, /Project URL/i);
   assert.match(config, /anon(?:\/public)? key/i);
   assert.doesNotMatch(config, /service_role\s*=/i);
