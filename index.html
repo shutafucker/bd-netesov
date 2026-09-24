@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+    <meta name="description" content="Актуальное расписание занятий колледжа">
+    <title>Расписание колледжа</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="config.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="ambient ambient--blue" aria-hidden="true"></div>
+    <div class="ambient ambient--violet" aria-hidden="true"></div>
+
+    <main class="app-shell">
+      <header class="page-header">
+        <p class="eyebrow">Колледж</p>
+        <h1>Расписание</h1>
+        <p class="subtitle">Актуальное расписание занятий</p>
+        <p class="date-line" id="current-date">Загрузка даты…</p>
+      </header>
+
+      <section class="control-panel" aria-labelledby="group-heading">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Учебная группа</p>
+            <h2 id="group-heading">Ваша группа</h2>
+          </div>
+          <span class="connection-dot" id="connection-dot" aria-hidden="true"></span>
+        </div>
+
+        <label class="field-label" for="group-select">Выберите группу</label>
+        <div class="select-wrap">
+          <select id="group-select" disabled>
+            <option value="">Загрузка групп…</option>
+          </select>
+          <svg class="select-icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"/>
+          </svg>
+        </div>
+
+        <div class="actions">
+          <button class="button button--primary" id="today-button" type="button" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v3m10-3v3M4.5 9h15M6 5h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/></svg>
+            Сегодня
+          </button>
+          <button class="button button--secondary" id="now-button" type="button" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+            Сейчас
+          </button>
+        </div>
+      </section>
+
+      <section class="schedule-section" aria-labelledby="results-title">
+        <div class="results-heading">
+          <div>
+            <p class="section-kicker" id="results-kicker">Обзор дня</p>
+            <h2 id="results-title">Расписание на сегодня</h2>
+          </div>
+          <span class="lesson-count" id="lesson-count" hidden></span>
+        </div>
+
+        <div class="status-region" id="status-region" aria-live="polite" aria-atomic="true"></div>
+        <div class="results" id="results"></div>
+      </section>
+
+      <footer class="app-footer">
+        <p>Данные обновляются из Supabase</p>
+      </footer>
+    </main>
+
+    <template id="lesson-template">
+      <article class="lesson-card">
+        <div class="lesson-number" aria-hidden="true"></div>
+        <div class="lesson-copy">
+          <h3 class="lesson-subject"></h3>
+          <p class="lesson-time"></p>
+        </div>
+        <svg class="lesson-chevron" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/>
+        </svg>
+      </article>
+    </template>
+
+    <template id="skeleton-template">
+      <div class="lesson-card skeleton-card" aria-hidden="true">
+        <div class="skeleton skeleton--number"></div>
+        <div class="lesson-copy">
+          <div class="skeleton skeleton--title"></div>
+          <div class="skeleton skeleton--time"></div>
+        </div>
+      </div>
+    </template>
+
+    <noscript>
+      <div class="noscript-message">Для просмотра расписания включите JavaScript в настройках браузера.</div>
+    </noscript>
+  </body>
+</html>

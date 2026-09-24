@@ -1,0 +1,21 @@
+# Operating systems
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local tooling
+node_modules/
+.vercel/
+.supabase/
+supabase/.temp/
+
+# Logs and local overrides
+*.log
+config.local.js
+.env
+.env.*
