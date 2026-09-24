@@ -17,11 +17,23 @@ create table if not exists public.schedule (
   unique (group_id, day_of_week, lesson_number)
 );
 
+create table if not exists public.telegram_users (
+  telegram_user_id bigint primary key,
+  chat_id bigint not null,
+  group_id bigint not null references public.groups(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create index if not exists schedule_group_day_idx
   on public.schedule (group_id, day_of_week, lesson_number);
 
+create index if not exists telegram_users_group_idx
+  on public.telegram_users (group_id);
+
 alter table public.groups enable row level security;
 alter table public.schedule enable row level security;
+alter table public.telegram_users enable row level security;
 
 drop policy if exists "groups_are_publicly_readable" on public.groups;
 create policy "groups_are_publicly_readable"

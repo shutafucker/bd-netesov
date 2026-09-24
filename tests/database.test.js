@@ -46,3 +46,18 @@ test('database seeds two groups across multiple weekdays', () => {
   );
   assert.ok(new Set(weekdays).size >= 3);
 });
+
+test('database stores Telegram preferences behind RLS without public policies', () => {
+  const sql = fs.readFileSync(sqlPath, 'utf8');
+
+  assert.match(sql, /create table if not exists public\.telegram_users/i);
+  assert.match(sql, /telegram_user_id\s+bigint\s+primary key/i);
+  assert.match(sql, /chat_id\s+bigint\s+not null/i);
+  assert.match(sql, /group_id\s+bigint\s+not null\s+references public\.groups\s*\(id\)\s+on delete cascade/i);
+  assert.match(sql, /created_at\s+timestamptz\s+not null\s+default now\(\)/i);
+  assert.match(sql, /updated_at\s+timestamptz\s+not null\s+default now\(\)/i);
+  assert.match(sql, /create index if not exists telegram_users_group_idx/i);
+  assert.match(sql, /alter table public\.telegram_users enable row level security/i);
+  assert.doesNotMatch(sql, /create policy[^;]+on public\.telegram_users/is);
+  assert.doesNotMatch(sql, /grant[^;]+telegram_users/is);
+});

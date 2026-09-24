@@ -127,9 +127,80 @@ node --check config.js
 
 Убедитесь, что Vercel завершил последнюю сборку, затем обновите страницу без кеша. Данные Supabase загружаются при каждом действии и не требуют нового deploy.
 
-## Будущий Telegram-бот
+## Telegram-бот
 
-Схема базы не зависит от веб-интерфейса. В будущем Telegram-бот сможет читать те же таблицы `groups` и `schedule`, фильтруя строки по `group_id` и `day_of_week`. Секрет бота и серверные ключи нужно хранить только на серверной стороне бота, а не в этом статическом сайте.
+Бот работает как Supabase Edge Function, использует те же таблицы `groups` и `schedule`, запоминает выбранную группу и отвечает на команды только в личных чатах:
+
+- `/start` — запуск и главное меню;
+- `/today` — расписание на сегодня;
+- `/now` — текущая пара или состояние учебного дня;
+- `/group` — выбрать другую группу;
+- `/help` — список команд.
+
+Время определяется в часовом поясе `Asia/Almaty`.
+
+### 1. Создайте бота
+
+1. Откройте официальный `@BotFather` в Telegram.
+2. Выполните `/newbot`.
+3. Укажите отображаемое имя и уникальный username, оканчивающийся на `bot`.
+4. Сохраните новый токен как пароль. Не вставляйте его в исходный код, Git, `config.js` или сообщения.
+
+Если токен где-либо опубликован, сразу отзовите его через BotFather и создайте новый.
+
+### 2. Обновите базу
+
+Повторно выполните полный [database.sql](database.sql) в Supabase **SQL Editor**. Он добавит закрытую RLS таблицу `telegram_users`, не удаляя существующее расписание.
+
+### 3. Добавьте секреты
+
+Откройте Supabase Dashboard → **Edge Functions → Secrets** и создайте:
+
+- `TELEGRAM_BOT_TOKEN` — новый токен BotFather;
+- `TELEGRAM_WEBHOOK_SECRET` — случайная строка длиной не менее 32 символов из латинских букв, цифр, `_` и `-`.
+
+Это Edge Function Secrets: значения доступны серверной функции, но не статическому сайту и не посетителям.
+
+### 4. Разверните Edge Function
+
+Установите Docker Desktop, если Supabase CLI запросит его для локальной сборки. Затем выполните:
+
+```bash
+npx supabase login
+npx supabase link --project-ref gchgtvcklerhlfmwmica
+npx supabase functions deploy telegram-bot --project-ref gchgtvcklerhlfmwmica --use-api
+```
+
+Файл `supabase/config.toml` отключает проверку Supabase JWT только для Telegram webhook. Сам webhook защищён отдельным заголовком с `TELEGRAM_WEBHOOK_SECRET`.
+
+### 5. Зарегистрируйте webhook
+
+Не вставляйте секреты прямо в команду: она может сохраниться в истории shell. В локальном терминале безопасно задайте переменные способом, который поддерживает ваша ОС или менеджер секретов, и запустите:
+
+```bash
+node scripts/register-telegram-webhook.mjs
+```
+
+Скрипт использует `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` и необязательный `SUPABASE_PROJECT_REF`. Он регистрирует только обновления `message` и `callback_query` и не выводит секреты.
+
+Для проверки вызовите метод Telegram `getWebhookInfo` в локальном окружении с токеном. Поле `url` должно оканчиваться на `/functions/v1/telegram-bot`, `pending_update_count` не должно постоянно расти, а `last_error_message` должно отсутствовать.
+
+### Устранение проблем бота
+
+- **Бот не отвечает:** проверьте, что функция развернулась, webhook зарегистрирован и оба секрета имеют одинаковый `TELEGRAM_WEBHOOK_SECRET`.
+- **Ошибка таблицы `telegram_users`:** повторно выполните актуальный `database.sql`.
+- **Группы не появляются:** проверьте таблицу `groups` и записи расписания в Supabase.
+- **Webhook отвечает 401:** заново зарегистрируйте webhook после изменения webhook-secret.
+- **Бот отвечает с задержкой:** откройте Edge Function Logs и `getWebhookInfo`, не публикуя содержимое секретов.
+
+### Тесты бота
+
+Тесты TypeScript выполняются встроенным runner современного Node.js:
+
+```bash
+node --test supabase/functions/telegram-bot/*.test.ts
+node --test tests/*.test.js
+```
 
 ## Лицензия
 

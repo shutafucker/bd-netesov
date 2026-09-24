@@ -19,3 +19,5 @@ supabase/.temp/
 config.local.js
 .env
 .env.*
+supabase/functions/.env
+supabase/functions/.env.*
