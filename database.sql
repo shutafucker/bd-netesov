@@ -11,11 +11,16 @@ create table if not exists public.schedule (
   day_of_week smallint not null check (day_of_week between 1 and 6),
   lesson_number smallint not null check (lesson_number > 0),
   subject_name text not null check (length(trim(subject_name)) > 0),
+  teacher_name text,
+  room text,
   time_start time not null,
   time_end time not null,
   check (time_end > time_start),
   unique (group_id, day_of_week, lesson_number)
 );
+
+alter table public.schedule add column if not exists teacher_name text;
+alter table public.schedule add column if not exists room text;
 
 create table if not exists public.telegram_users (
   telegram_user_id bigint primary key,
@@ -55,7 +60,8 @@ grant select on public.groups, public.schedule to anon, authenticated;
 insert into public.groups (name)
 values
   ('ПО-41'),
-  ('ИС-22')
+  ('ИС-22'),
+  ('ПО-42')
 on conflict (name) do nothing;
 
 -- ПО-41: расписание с понедельника по субботу.
@@ -100,6 +106,59 @@ where g.name = 'ПО-41'
 on conflict (group_id, day_of_week, lesson_number) do update
 set
   subject_name = excluded.subject_name,
+  time_start = excluded.time_start,
+  time_end = excluded.time_end;
+
+-- ПО-42: повторяющееся расписание с понедельника по пятницу.
+insert into public.schedule (
+  group_id,
+  day_of_week,
+  lesson_number,
+  subject_name,
+  teacher_name,
+  room,
+  time_start,
+  time_end
+)
+select
+  g.id,
+  lesson.day_of_week,
+  lesson.lesson_number,
+  lesson.subject_name,
+  lesson.teacher_name,
+  lesson.room,
+  lesson.time_start,
+  lesson.time_end
+from public.groups as g
+cross join (
+  values
+    (1::smallint, 1::smallint, 'Физическая культура'::text, 'Коломиец В.С.'::text, null::text, '08:30'::time, '09:50'::time),
+    (1::smallint, 2::smallint, 'БМ 5 Применение основ социальных наук'::text, 'Злочевская С.В.'::text, '321'::text, '10:40'::time, '12:00'::time),
+    (1::smallint, 3::smallint, 'ПМ 11 Программирование модулей'::text, 'Селиверстов К.О.'::text, '105'::text, '12:40'::time, '14:00'::time),
+    (1::smallint, 4::smallint, 'БМ 5.3 Основы права'::text, 'Турищева Э.В.'::text, '112'::text, '14:10'::time, '15:30'::time),
+    (2::smallint, 1::smallint, 'ПМ 11 Программирование модулей'::text, 'Селиверстов К.О.'::text, '105'::text, '08:30'::time, '10:00'::time),
+    (2::smallint, 2::smallint, 'ПМ 11 Программирование модулей'::text, 'Селиверстов К.О.'::text, '105'::text, '10:10'::time, '11:40'::time),
+    (2::smallint, 3::smallint, 'БМ 5 Применение основ социальных наук'::text, 'Злочевская С.В.'::text, '321'::text, '12:20'::time, '13:50'::time),
+    (2::smallint, 4::smallint, 'БМ 5 Применение основ социальных наук'::text, 'Злочевская С.В.'::text, '321'::text, '14:00'::time, '15:30'::time),
+    (3::smallint, 1::smallint, 'БМ 5.3 Основы права / ПМ 13 Разработка баз данных'::text, 'Турищева Э.В. / Тукубаев А.С.'::text, '112 / 117'::text, '08:30'::time, '10:00'::time),
+    (3::smallint, 2::smallint, 'БМ 5 Применение основ социальных наук'::text, 'Злочевская С.В.'::text, '321'::text, '10:10'::time, '11:40'::time),
+    (3::smallint, 3::smallint, 'Физическая культура'::text, 'Коломиец В.С.'::text, null::text, '12:20'::time, '13:50'::time),
+    (3::smallint, 4::smallint, 'ПМ 13 Разработка баз данных'::text, 'Тукубаев А.С.'::text, '117'::text, '14:00'::time, '15:30'::time),
+    (4::smallint, 1::smallint, 'БМ 5 Применение основ социальных наук'::text, 'Злочевская С.В.'::text, '321'::text, '08:30'::time, '10:00'::time),
+    (4::smallint, 2::smallint, 'ПМ 11 Программирование модулей'::text, 'Селиверстов К.О.'::text, '105'::text, '10:10'::time, '11:40'::time),
+    (4::smallint, 3::smallint, 'ПМ 13 Разработка баз данных'::text, 'Тукубаев А.С.'::text, '117'::text, '12:20'::time, '13:50'::time),
+    (4::smallint, 4::smallint, 'Физическая культура'::text, 'Коломиец В.С.'::text, null::text, '14:00'::time, '15:30'::time),
+    (5::smallint, 1::smallint, 'БМ 5.3 Основы права'::text, 'Турищева Э.В.'::text, '112'::text, '08:30'::time, '10:00'::time),
+    (5::smallint, 2::smallint, 'БМ 5 Применение основ социальных наук'::text, 'Злочевская С.В.'::text, '321'::text, '10:10'::time, '11:40'::time),
+    (5::smallint, 3::smallint, 'ПМ 13 Разработка баз данных'::text, 'Тукубаев А.С.'::text, '117'::text, '12:20'::time, '13:50'::time),
+    (5::smallint, 4::smallint, 'БМ 5 Применение основ социальных наук'::text, 'Злочевская С.В.'::text, '321'::text, '14:00'::time, '15:30'::time)
+) as lesson(day_of_week, lesson_number, subject_name, teacher_name, room, time_start, time_end)
+where g.name = 'ПО-42'
+on conflict (group_id, day_of_week, lesson_number) do update
+set
+  subject_name = excluded.subject_name,
+  teacher_name = excluded.teacher_name,
+  room = excluded.room,
   time_start = excluded.time_start,
   time_end = excluded.time_end;
 

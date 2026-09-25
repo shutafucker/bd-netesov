@@ -66,3 +66,22 @@ test('database stores Telegram preferences behind RLS without public policies', 
   assert.doesNotMatch(sql, /create policy[^;]+on public\.telegram_users/is);
   assert.doesNotMatch(sql, /grant[^;]+telegram_users/is);
 });
+
+test('database seeds the recurring PO-42 schedule with lesson details', () => {
+  const sql = fs.readFileSync(sqlPath, 'utf8');
+
+  assert.match(sql, /teacher_name\s+text/i);
+  assert.match(sql, /room\s+text/i);
+  assert.match(sql, /alter table public\.schedule\s+add column if not exists teacher_name text/i);
+  assert.match(sql, /alter table public\.schedule\s+add column if not exists room text/i);
+  assert.match(sql, /'ПО-42'/);
+  assert.match(sql, /Селиверстов К\.О\./);
+  assert.match(sql, /Тукубаев А\.С\./);
+  assert.match(sql, /Злочевская С\.В\./);
+  assert.match(sql, /Коломиец В\.С\./);
+  assert.match(sql, /'10:40'::time, '12:00'::time/);
+  assert.match(sql, /'10:10'::time, '11:40'::time/);
+  assert.match(sql, /where g\.name = 'ПО-42'/i);
+  assert.match(sql, /teacher_name = excluded\.teacher_name/i);
+  assert.match(sql, /room = excluded\.room/i);
+});
