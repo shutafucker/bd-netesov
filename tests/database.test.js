@@ -84,4 +84,9 @@ test('database seeds the recurring PO-42 schedule with lesson details', () => {
   assert.match(sql, /where g\.name = 'ПО-42'/i);
   assert.match(sql, /teacher_name = excluded\.teacher_name/i);
   assert.match(sql, /room = excluded\.room/i);
+
+  const po42Block = sql.split('-- ПО-42:')[1].split('-- ИС-22:')[0];
+  const rows = [...po42Block.matchAll(/\(\s*([1-6])::smallint,\s*([1-5])::smallint,/g)];
+  assert.equal(rows.length, 20);
+  assert.deepEqual(new Set(rows.map((match) => match[1])), new Set(['1', '2', '3', '4', '5']));
 });
