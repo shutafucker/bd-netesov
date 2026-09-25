@@ -63,7 +63,7 @@ export function createScheduleRepository(
     async getSchedule(groupId, dayOfWeek): Promise<Lesson[]> {
       const result = await client
         .from('schedule')
-        .select('id, lesson_number, subject_name, time_start, time_end')
+        .select('id, lesson_number, subject_name, teacher_name, room, time_start, time_end')
         .eq('group_id', groupId)
         .eq('day_of_week', dayOfWeek)
         .order('lesson_number', { ascending: true });

@@ -14,6 +14,8 @@ const lessons: Lesson[] = [
     id: 1,
     lesson_number: 1,
     subject_name: 'Компьютерные сети',
+    teacher_name: null,
+    room: null,
     time_start: '08:30:00',
     time_end: '09:50:00',
   },

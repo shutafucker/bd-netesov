@@ -7,7 +7,7 @@ function createFakeSupabase() {
   const calls: Array<{ table: string; operation: string; args: unknown[] }> = [];
   const responses: Record<string, unknown> = {
     groups: [{ id: 1, name: 'ПО-41' }],
-    schedule: [{ id: 5, lesson_number: 1, subject_name: 'Сети', time_start: '08:30:00', time_end: '09:50:00' }],
+    schedule: [{ id: 5, lesson_number: 1, subject_name: 'Сети', teacher_name: 'Иванов И.И.', room: '101', time_start: '08:30:00', time_end: '09:50:00' }],
     telegram_users: {
       telegram_user_id: 200,
       chat_id: 100,
@@ -92,7 +92,7 @@ test('repository filters and orders the daily schedule', async () => {
   assert.deepEqual(
     fake.calls.filter((call) => call.table === 'schedule').map((call) => [call.operation, call.args]),
     [
-      ['select', ['id, lesson_number, subject_name, time_start, time_end']],
+      ['select', ['id, lesson_number, subject_name, teacher_name, room, time_start, time_end']],
       ['eq', ['group_id', 1]],
       ['eq', ['day_of_week', 4]],
       ['order', ['lesson_number', { ascending: true }]],

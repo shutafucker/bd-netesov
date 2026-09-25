@@ -7,6 +7,8 @@ export interface Lesson {
   id: number;
   lesson_number: number;
   subject_name: string;
+  teacher_name: string | null;
+  room: string | null;
   time_start: string;
   time_end: string;
 }

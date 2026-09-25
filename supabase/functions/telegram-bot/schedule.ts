@@ -29,6 +29,13 @@ function formatTime(value: string): string {
   return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
 }
 
+function formatLessonDetails(lesson: Lesson): string {
+  const rows: string[] = [];
+  if (lesson.teacher_name?.trim()) rows.push(`Преподаватель: ${lesson.teacher_name.trim()}`);
+  if (lesson.room?.trim()) rows.push(`Кабинет: ${lesson.room.trim()}`);
+  return rows.length === 0 ? '' : `\n${rows.join('\n')}`;
+}
+
 export function getAlmatyClock(date = new Date()): {
   dayOfWeek: number;
   minutes: number;
@@ -89,7 +96,7 @@ export function formatTodayMessage(groupName: string, lessons: Lesson[], dateLab
     .sort((first, second) => first.lesson_number - second.lesson_number)
     .map(
       (lesson) =>
-        `${String(lesson.lesson_number).padStart(2, '0')} · ${lesson.subject_name}\n${formatTime(lesson.time_start)} — ${formatTime(lesson.time_end)}`,
+        `${String(lesson.lesson_number).padStart(2, '0')} · ${lesson.subject_name}\n${formatTime(lesson.time_start)} — ${formatTime(lesson.time_end)}${formatLessonDetails(lesson)}`,
     );
   return `${heading}\n\n${rows.join('\n\n')}`;
 }
@@ -97,13 +104,13 @@ export function formatTodayMessage(groupName: string, lessons: Lesson[], dateLab
 export function formatCurrentMessage(groupName: string, state: ScheduleState): string {
   if (state.type === 'current') {
     const lesson = state.lesson;
-    return `Сейчас · ${groupName}\n\nИдёт ${lesson.lesson_number} пара\n${lesson.subject_name}\n${formatTime(lesson.time_start)} — ${formatTime(lesson.time_end)}`;
+    return `Сейчас · ${groupName}\n\nИдёт ${lesson.lesson_number} пара\n${lesson.subject_name}\n${formatTime(lesson.time_start)} — ${formatTime(lesson.time_end)}${formatLessonDetails(lesson)}`;
   }
   if (state.type === 'break') {
-    return `Сейчас перемена · ${groupName}\n\nСледующая пара: ${state.lesson.subject_name}\nНачало в ${formatTime(state.lesson.time_start)}`;
+    return `Сейчас перемена · ${groupName}\n\nСледующая пара: ${state.lesson.subject_name}\nНачало в ${formatTime(state.lesson.time_start)}${formatLessonDetails(state.lesson)}`;
   }
   if (state.type === 'before') {
-    return `Занятия ещё не начались · ${groupName}\n\nПервая пара: ${state.lesson.subject_name}\nНачало в ${formatTime(state.lesson.time_start)}`;
+    return `Занятия ещё не начались · ${groupName}\n\nПервая пара: ${state.lesson.subject_name}\nНачало в ${formatTime(state.lesson.time_start)}${formatLessonDetails(state.lesson)}`;
   }
   if (state.type === 'after') {
     return `На сегодня всё · ${groupName}\n\nВсе занятия закончились.`;

@@ -14,6 +14,8 @@ const lessons = [
     id: 1,
     lesson_number: 1,
     subject_name: 'Компьютерные сети',
+    teacher_name: null,
+    room: null,
     time_start: '08:30:00',
     time_end: '09:50:00',
   },
@@ -21,6 +23,8 @@ const lessons = [
     id: 2,
     lesson_number: 2,
     subject_name: 'Web-разработка',
+    teacher_name: 'Селиверстов К.О.',
+    room: '105',
     time_start: '09:55:00',
     time_end: '11:15:00',
   },
@@ -28,6 +32,8 @@ const lessons = [
     id: 3,
     lesson_number: 3,
     subject_name: 'Базы данных',
+    teacher_name: null,
+    room: null,
     time_start: '11:25:00',
     time_end: '12:45:00',
   },
@@ -72,7 +78,7 @@ test('formatTodayMessage produces ordered plain Russian text', () => {
   const message = formatTodayMessage('ПО-41', [...lessons].reverse(), 'четверг, 24 сентября');
   assert.equal(
     message,
-    'Расписание · ПО-41\nЧетверг, 24 сентября\n\n01 · Компьютерные сети\n08:30 — 09:50\n\n02 · Web-разработка\n09:55 — 11:15\n\n03 · Базы данных\n11:25 — 12:45',
+    'Расписание · ПО-41\nЧетверг, 24 сентября\n\n01 · Компьютерные сети\n08:30 — 09:50\n\n02 · Web-разработка\n09:55 — 11:15\nПреподаватель: Селиверстов К.О.\nКабинет: 105\n\n03 · Базы данных\n11:25 — 12:45',
   );
 });
 
@@ -86,7 +92,7 @@ test('formatTodayMessage handles an empty day', () => {
 test('formatCurrentMessage covers every schedule state', () => {
   assert.equal(
     formatCurrentMessage('ПО-41', { type: 'current', lesson: lessons[1] }),
-    'Сейчас · ПО-41\n\nИдёт 2 пара\nWeb-разработка\n09:55 — 11:15',
+    'Сейчас · ПО-41\n\nИдёт 2 пара\nWeb-разработка\n09:55 — 11:15\nПреподаватель: Селиверстов К.О.\nКабинет: 105',
   );
   assert.equal(
     formatCurrentMessage('ПО-41', { type: 'break', lesson: lessons[2] }),
