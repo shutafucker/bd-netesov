@@ -30,7 +30,7 @@ test('database enables public read-only RLS', () => {
   assert.doesNotMatch(sql, /create policy[\s\S]{0,120}for\s+(insert|update|delete|all)/i);
 });
 
-test('database seeds two groups across multiple weekdays', () => {
+test('database seeds both groups for every teaching weekday', () => {
   const sql = fs.readFileSync(sqlPath, 'utf8');
 
   assert.match(sql, /ПО-41/);
@@ -41,10 +41,15 @@ test('database seeds two groups across multiple weekdays', () => {
   assert.match(sql, /on conflict \(name\) do nothing/i);
   assert.match(sql, /on conflict \(group_id, day_of_week, lesson_number\) do update/i);
 
-  const weekdays = [...sql.matchAll(/\(\s*([1-6])::smallint,\s*\d+::smallint/g)].map(
-    (match) => match[1],
-  );
-  assert.ok(new Set(weekdays).size >= 3);
+  const [po41Block, is22Block] = sql.split('-- ИС-22:');
+  for (const [group, block] of [['ПО-41', po41Block], ['ИС-22', is22Block]]) {
+    const weekdays = [...block.matchAll(/\(\s*([1-6])::smallint,\s*\d+::smallint/g)].map(
+      (match) => match[1],
+    );
+    for (let day = 1; day <= 6; day += 1) {
+      assert.ok(weekdays.includes(String(day)), `expected ${group} schedule on weekday ${day}`);
+    }
+  }
 });
 
 test('database stores Telegram preferences behind RLS without public policies', () => {

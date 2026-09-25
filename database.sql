@@ -58,7 +58,7 @@ values
   ('ИС-22')
 on conflict (name) do nothing;
 
--- ПО-41: понедельник, среда и четверг.
+-- ПО-41: расписание с понедельника по субботу.
 insert into public.schedule (
   group_id,
   day_of_week,
@@ -80,12 +80,21 @@ cross join (
     (1::smallint, 1::smallint, 'Компьютерные сети'::text, '08:30'::time, '09:50'::time),
     (1::smallint, 2::smallint, 'Web-разработка'::text, '09:55'::time, '11:15'::time),
     (1::smallint, 3::smallint, 'Базы данных'::text, '11:25'::time, '12:45'::time),
+    (2::smallint, 1::smallint, 'Разработка программных модулей'::text, '08:30'::time, '09:50'::time),
+    (2::smallint, 2::smallint, 'Дискретная математика'::text, '09:55'::time, '11:15'::time),
+    (2::smallint, 3::smallint, 'Физическая культура'::text, '11:25'::time, '12:45'::time),
     (3::smallint, 1::smallint, 'Операционные системы'::text, '08:30'::time, '09:50'::time),
     (3::smallint, 2::smallint, 'Компьютерные сети'::text, '09:55'::time, '11:15'::time),
     (3::smallint, 3::smallint, 'Английский язык'::text, '11:25'::time, '12:45'::time),
     (4::smallint, 1::smallint, 'Web-разработка'::text, '08:30'::time, '09:50'::time),
     (4::smallint, 2::smallint, 'Базы данных'::text, '09:55'::time, '11:15'::time),
-    (4::smallint, 3::smallint, 'Информационная безопасность'::text, '11:25'::time, '12:45'::time)
+    (4::smallint, 3::smallint, 'Информационная безопасность'::text, '11:25'::time, '12:45'::time),
+    (5::smallint, 1::smallint, 'Тестирование программного обеспечения'::text, '08:30'::time, '09:50'::time),
+    (5::smallint, 2::smallint, 'Разработка мобильных приложений'::text, '09:55'::time, '11:15'::time),
+    (5::smallint, 3::smallint, 'Экономика отрасли'::text, '11:25'::time, '12:45'::time),
+    (6::smallint, 1::smallint, 'Проектная деятельность'::text, '08:30'::time, '09:50'::time),
+    (6::smallint, 2::smallint, 'Основы алгоритмизации'::text, '09:55'::time, '11:15'::time),
+    (6::smallint, 3::smallint, 'Консультация по дипломному проекту'::text, '11:25'::time, '12:45'::time)
 ) as lesson(day_of_week, lesson_number, subject_name, time_start, time_end)
 where g.name = 'ПО-41'
 on conflict (group_id, day_of_week, lesson_number) do update
@@ -94,7 +103,7 @@ set
   time_start = excluded.time_start,
   time_end = excluded.time_end;
 
--- ИС-22: вторник, четверг и суббота.
+-- ИС-22: расписание с понедельника по субботу.
 insert into public.schedule (
   group_id,
   day_of_week,
@@ -113,14 +122,24 @@ select
 from public.groups as g
 cross join (
   values
+    (1::smallint, 1::smallint, 'Информатика'::text, '08:30'::time, '09:50'::time),
+    (1::smallint, 2::smallint, 'Математика'::text, '09:55'::time, '11:15'::time),
+    (1::smallint, 3::smallint, 'Английский язык'::text, '11:25'::time, '12:45'::time),
     (2::smallint, 1::smallint, 'Математика'::text, '08:30'::time, '09:50'::time),
     (2::smallint, 2::smallint, 'Основы программирования'::text, '09:55'::time, '11:15'::time),
     (2::smallint, 3::smallint, 'Физическая культура'::text, '11:25'::time, '12:45'::time),
+    (3::smallint, 1::smallint, 'Операционные системы'::text, '08:30'::time, '09:50'::time),
+    (3::smallint, 2::smallint, 'Основы программирования'::text, '09:55'::time, '11:15'::time),
+    (3::smallint, 3::smallint, 'Компьютерные сети'::text, '11:25'::time, '12:45'::time),
     (4::smallint, 1::smallint, 'Базы данных'::text, '08:30'::time, '09:50'::time),
     (4::smallint, 2::smallint, 'Проектирование систем'::text, '09:55'::time, '11:15'::time),
     (4::smallint, 3::smallint, 'Web-технологии'::text, '11:25'::time, '12:45'::time),
+    (5::smallint, 1::smallint, 'Архитектура компьютеров'::text, '08:30'::time, '09:50'::time),
+    (5::smallint, 2::smallint, 'Информационная безопасность'::text, '09:55'::time, '11:15'::time),
+    (5::smallint, 3::smallint, 'Русский язык'::text, '11:25'::time, '12:45'::time),
     (6::smallint, 1::smallint, 'Основы алгоритмизации'::text, '08:30'::time, '09:50'::time),
-    (6::smallint, 2::smallint, 'Архитектура компьютеров'::text, '09:55'::time, '11:15'::time)
+    (6::smallint, 2::smallint, 'Архитектура компьютеров'::text, '09:55'::time, '11:15'::time),
+    (6::smallint, 3::smallint, 'Проектная деятельность'::text, '11:25'::time, '12:45'::time)
 ) as lesson(day_of_week, lesson_number, subject_name, time_start, time_end)
 where g.name = 'ИС-22'
 on conflict (group_id, day_of_week, lesson_number) do update
