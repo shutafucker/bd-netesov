@@ -25,6 +25,8 @@ test('HTML exposes the accessible application contract', () => {
 
   assert.match(html, /<main[\s>]/i);
   assert.match(html, /aria-live="polite"/i);
+  assert.match(html, /class="lesson-teacher"/i);
+  assert.match(html, /class="lesson-room"/i);
   assert.ok(html.indexOf('@supabase/supabase-js') < html.indexOf('config.js'));
   assert.ok(html.indexOf('config.js') < html.indexOf('app.js'));
 });
@@ -73,6 +75,10 @@ test('application exposes the requested browser functions', () => {
   ]) {
     assert.match(app, new RegExp(`function\\s+${functionName}\\s*\\(`));
   }
+
+  assert.match(app, /teacher_name, room/);
+  assert.match(app, /Преподаватель:/);
+  assert.match(app, /Кабинет:/);
 });
 
 test('README documents setup, deployment, security, and troubleshooting', () => {

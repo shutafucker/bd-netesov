@@ -309,7 +309,7 @@ async function fetchTodaySchedule(groupId, requestId) {
 
   const { data, error } = await applicationState.client
     .from('schedule')
-    .select('id, lesson_number, subject_name, time_start, time_end')
+    .select('id, lesson_number, subject_name, teacher_name, room, time_start, time_end')
     .eq('group_id', groupId)
     .eq('day_of_week', dayOfWeek)
     .order('lesson_number', { ascending: true });
@@ -337,6 +337,16 @@ function renderSchedule(lessons) {
     card.querySelector('.lesson-number').textContent = String(lesson.lesson_number).padStart(2, '0');
     card.querySelector('.lesson-subject').textContent = lesson.subject_name;
     card.querySelector('.lesson-time').textContent = `${formatTime(lesson.time_start)} — ${formatTime(lesson.time_end)}`;
+    const teacher = card.querySelector('.lesson-teacher');
+    const room = card.querySelector('.lesson-room');
+    if (lesson.teacher_name?.trim()) {
+      teacher.textContent = `Преподаватель: ${lesson.teacher_name.trim()}`;
+      teacher.hidden = false;
+    }
+    if (lesson.room?.trim()) {
+      room.textContent = `Кабинет: ${lesson.room.trim()}`;
+      room.hidden = false;
+    }
     fragment.append(card);
   });
 
@@ -359,27 +369,41 @@ function renderCurrentLesson(state) {
 
   if (state.type === 'current') {
     const lesson = state.lesson;
+    const metadata = [
+      lesson.teacher_name?.trim() ? `Преподаватель: ${lesson.teacher_name.trim()}` : '',
+      lesson.room?.trim() ? `Кабинет: ${lesson.room.trim()}` : '',
+    ].filter(Boolean);
     card = createStateCard({
       label: 'Идёт сейчас',
       title: `${lesson.lesson_number} пара`,
       subject: lesson.subject_name,
-      detail: `${formatTime(lesson.time_start)} — ${formatTime(lesson.time_end)}`,
+      detail: [`${formatTime(lesson.time_start)} — ${formatTime(lesson.time_end)}`, ...metadata].join(' · '),
       kind: 'current',
       live: true,
     });
   } else if (state.type === 'break') {
+    const lesson = state.lesson;
+    const metadata = [
+      lesson.teacher_name?.trim() ? `Преподаватель: ${lesson.teacher_name.trim()}` : '',
+      lesson.room?.trim() ? `Кабинет: ${lesson.room.trim()}` : '',
+    ].filter(Boolean);
     card = createStateCard({
       label: 'Сейчас перемена',
       title: 'Следующая пара',
       subject: state.lesson.subject_name,
-      detail: `Начало в ${formatTime(state.lesson.time_start)}`,
+      detail: [`Начало в ${formatTime(lesson.time_start)}`, ...metadata].join(' · '),
     });
   } else if (state.type === 'before') {
+    const lesson = state.lesson;
+    const metadata = [
+      lesson.teacher_name?.trim() ? `Преподаватель: ${lesson.teacher_name.trim()}` : '',
+      lesson.room?.trim() ? `Кабинет: ${lesson.room.trim()}` : '',
+    ].filter(Boolean);
     card = createStateCard({
       label: 'Сегодня',
       title: 'Занятия ещё не начались',
       subject: state.lesson.subject_name,
-      detail: `Первая пара начинается в ${formatTime(state.lesson.time_start)}`,
+      detail: [`Первая пара начинается в ${formatTime(lesson.time_start)}`, ...metadata].join(' · '),
     });
   } else if (state.type === 'after') {
     card = createStateCard({

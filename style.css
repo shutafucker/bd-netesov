@@ -374,6 +374,14 @@ select:focus-visible,
   font-variant-numeric: tabular-nums;
 }
 
+.lesson-teacher,
+.lesson-room {
+  margin: 5px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
 .lesson-chevron {
   width: 16px;
   color: var(--text-tertiary);
